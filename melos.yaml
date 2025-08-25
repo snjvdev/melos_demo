@@ -1,0 +1,53 @@
+name: melos_demo
+
+packages:
+  - features/**
+  - core/**
+  - '*'
+
+melos:
+  command:
+    clean:
+      hooks:
+# Below script is useful for clearing the generated_file after melos clean -> its an post script that run with...
+       # post: rm packages/foo/lib/src/generated_file.g.dart
+  # Runs "flutter clean" in all Flutter packages (`--flutter`)
+      # with a concurrency of 3 at a time (`--concurrency=3`).
+        post: melos exec --flutter --concurrency=3 -- "flutter clean"
+
+        #dart format .
+        # melos format, melos format --output, melos format -c 3
+
+        # Exec Command
+        # melso exec -- "melos bs && melos run build"
+        # Concurrency
+        # melos exec -c 1 -- "dart analyze ."
+        # melos exec --fail-fast -- "dart analyze ."
+
+        # melos run <name> --> runs the script in the root of an project...
+
+        
+
+scripts:
+  # build:
+  #   run: |
+  #     flutter pub get
+  #     flutter pub run build_runner build --delete-conflicting-outputs
+
+  # test:
+  #   - flutter test
+
+  # format:
+  #   - flutter format .
+
+  test:selective_unit_test:
+    run: melos exec --dir-exists="test" --fail-fast --flutter-test --no-pub --coverage
+    description: "Run unit tests for the specific package in this project"
+    select-package:
+      flutter: true
+      dir-exists: test
+
+  test:
+    run: melos run test:selective_unit_test --no-select
+    description: Run all Flutter tests in this Project.
+
